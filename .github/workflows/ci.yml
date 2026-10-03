@@ -1,0 +1,38 @@
+name: RideLink CI Pipeline
+
+on:
+  push:
+    branches: [ "main", "develop", "feature/*" ]
+  pull_request:
+    branches: [ "main", "develop" ]
+
+jobs:
+  build-and-test:
+    name: Build & Test Microservices
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build and Test Account Service
+        run: mvn clean test -pl account-service
+
+      - name: Build and Test Driver Service
+        run: mvn clean test -pl driver-service
+
+      - name: Build and Test Ride Service
+        run: mvn clean test -pl ride-service
+
+      - name: Build and Test Payment Service
+        run: mvn clean test -pl payment-service
+
+      - name: Build Entire Multi-Module Solution
+        run: mvn clean package -DskipTests=false

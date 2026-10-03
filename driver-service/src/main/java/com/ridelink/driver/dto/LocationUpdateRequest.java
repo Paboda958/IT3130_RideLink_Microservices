@@ -1,0 +1,46 @@
+package com.ridelink.driver.dto;
+
+import jakarta.validation.constraints.NotNull;
+
+public class LocationUpdateRequest {
+
+    @NotNull(message = "Latitude is required")
+    private Double latitude;
+
+    @NotNull(message = "Longitude is required")
+    private Double longitude;
+
+    private String serviceArea;
+
+    public LocationUpdateRequest() {}
+
+    public LocationUpdateRequest(Double latitude, Double longitude, String serviceArea) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.serviceArea = serviceArea;
+    }
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
+    }
+
+    public String getServiceArea() {
+        return serviceArea;
+    }
+
+    public void setServiceArea(String serviceArea) {
+        this.serviceArea = serviceArea;
+    }
+}

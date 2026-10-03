@@ -1,0 +1,19 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: driver-service
+  data:
+    mongodb:
+      uri: ${DRIVER_MONGODB_URI:mongodb://localhost:27017/driverdb}
+      auto-index-creation: true
+
+jwt:
+  secret: 9a6e88a97f26414701ad41f0125e8b4e9e516f409f8756d123456789abcdef0123456789
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html

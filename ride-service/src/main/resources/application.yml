@@ -1,0 +1,24 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: ride-service
+  data:
+    mongodb:
+      uri: ${RIDE_MONGODB_URI:mongodb://localhost:27017/ridedb}
+      auto-index-creation: true
+
+services:
+  driver-service:
+    url: http://localhost:8082
+  payment-service:
+    url: http://localhost:8084
+  account-service:
+    url: http://localhost:8081
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html

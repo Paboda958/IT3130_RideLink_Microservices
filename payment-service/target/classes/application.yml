@@ -1,0 +1,16 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: payment-service
+  data:
+    mongodb:
+      uri: ${PAYMENT_MONGODB_URI:mongodb://localhost:27017/paymentdb}
+      auto-index-creation: true
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html

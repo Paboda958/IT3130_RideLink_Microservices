@@ -1,0 +1,545 @@
+{
+	"info": {
+		"_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+		"name": "RideLink Microservices API Collection",
+		"description": "Postman Collection for testing all 4 Spring Boot microservices of the RideLink Ride-Sharing Platform.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Member 1 - Account Service",
+			"item": [
+				{
+					"name": "Register Passenger Account",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fullName\": \"Alice Passenger\",\n  \"email\": \"alice@example.com\",\n  \"password\": \"password123\",\n  \"phone\": \"+94771234567\",\n  \"role\": \"ROLE_PASSENGER\"\n}"
+						},
+						"url": {
+							"raw": "{{account_url}}/api/v1/accounts/register",
+							"host": ["{{account_url}}"],
+							"path": ["api", "v1", "accounts", "register"]
+						}
+					}
+				},
+				{
+					"name": "Register Driver Account",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fullName\": \"Bob Driver\",\n  \"email\": \"bob@example.com\",\n  \"password\": \"password123\",\n  \"phone\": \"+94779876543\",\n  \"role\": \"ROLE_DRIVER\"\n}"
+						},
+						"url": {
+							"raw": "{{account_url}}/api/v1/accounts/register",
+							"host": ["{{account_url}}"],
+							"path": ["api", "v1", "accounts", "register"]
+						}
+					}
+				},
+				{
+					"name": "Login Passenger (Get JWT Token)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.token) {",
+									"    pm.environment.set('passenger_jwt', jsonData.token);",
+									"    pm.environment.set('passenger_id', jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"alice@example.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{account_url}}/api/v1/accounts/login",
+							"host": ["{{account_url}}"],
+							"path": ["api", "v1", "accounts", "login"]
+						}
+					}
+				},
+				{
+					"name": "Login Driver (Get JWT Token)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.token) {",
+									"    pm.environment.set('driver_jwt', jsonData.token);",
+									"    pm.environment.set('driver_user_account_id', jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"bob@example.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{account_url}}/api/v1/accounts/login",
+							"host": ["{{account_url}}"],
+							"path": ["api", "v1", "accounts", "login"]
+						}
+					}
+				},
+				{
+					"name": "Get Account Profile by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{passenger_jwt}}" }
+						],
+						"url": {
+							"raw": "{{account_url}}/api/v1/accounts/{{passenger_id}}",
+							"host": ["{{account_url}}"],
+							"path": ["api", "v1", "accounts", "{{passenger_id}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Member 2 - Driver & Vehicle Service",
+			"item": [
+				{
+					"name": "Register Driver Operational Profile & Vehicle",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.id) {",
+									"    pm.environment.set('driver_id', jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userAccountId\": {{driver_user_account_id}},\n  \"driverLicenseNumber\": \"DL-99887766\",\n  \"serviceArea\": \"Colombo Fort\",\n  \"vehicle\": {\n    \"make\": \"Toyota\",\n    \"model\": \"Prius\",\n    \"color\": \"Black\",\n    \"licensePlate\": \"WP CAB-5678\",\n    \"vehicleType\": \"SEDAN\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{driver_url}}/api/v1/drivers",
+							"host": ["{{driver_url}}"],
+							"path": ["api", "v1", "drivers"]
+						}
+					}
+				},
+				{
+					"name": "Update Driver Availability (Set AVAILABLE)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"availabilityStatus\": \"AVAILABLE\"\n}"
+						},
+						"url": {
+							"raw": "{{driver_url}}/api/v1/drivers/{{driver_id}}/availability",
+							"host": ["{{driver_url}}"],
+							"path": ["api", "v1", "drivers", "{{driver_id}}", "availability"]
+						}
+					}
+				},
+				{
+					"name": "Update Driver Availability (Set OFFLINE)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"availabilityStatus\": \"OFFLINE\"\n}"
+						},
+						"url": {
+							"raw": "{{driver_url}}/api/v1/drivers/{{driver_id}}/availability",
+							"host": ["{{driver_url}}"],
+							"path": ["api", "v1", "drivers", "{{driver_id}}", "availability"]
+						}
+					}
+				},
+				{
+					"name": "Update Driver Location",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"latitude\": 6.9271,\n  \"longitude\": 79.8612,\n  \"serviceArea\": \"Colombo Fort\"\n}"
+						},
+						"url": {
+							"raw": "{{driver_url}}/api/v1/drivers/{{driver_id}}/location",
+							"host": ["{{driver_url}}"],
+							"path": ["api", "v1", "drivers", "{{driver_id}}", "location"]
+						}
+					}
+				},
+				{
+					"name": "Get Eligible Available Drivers",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Available drivers returns HTTP 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test('Available drivers response is an array', function () {",
+									"    pm.expect(pm.response.json()).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{driver_url}}/api/v1/drivers/available?serviceArea=Colombo",
+							"host": ["{{driver_url}}"],
+							"path": ["api", "v1", "drivers", "available"],
+							"query": [
+								{ "key": "serviceArea", "value": "Colombo" }
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Member 3 - Ride Management Service",
+			"item": [
+				{
+					"name": "Create Ride Request (Auto Assign Driver)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.id) {",
+									"    pm.environment.set('ride_id', jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"passengerId\": {{passenger_id}},\n  \"pickupLocation\": \"Colombo Fort\",\n  \"destinationLocation\": \"Bambalapitiya\",\n  \"estimatedDistanceKm\": 6.5,\n  \"autoAssignDriver\": true\n}"
+						},
+						"url": {
+							"raw": "{{ride_url}}/api/v1/rides",
+							"host": ["{{ride_url}}"],
+							"path": ["api", "v1", "rides"]
+						}
+					}
+				},
+				{
+					"name": "Assign Driver to Ride",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"driverId\": {{driver_id}}\n}"
+						},
+						"url": {
+							"raw": "{{ride_url}}/api/v1/rides/{{ride_id}}/assign",
+							"host": ["{{ride_url}}"],
+							"path": ["api", "v1", "rides", "{{ride_id}}", "assign"]
+						}
+					}
+				},
+				{
+					"name": "Update Ride Status -> ACCEPTED",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"ACCEPTED\"\n}"
+						},
+						"url": {
+							"raw": "{{ride_url}}/api/v1/rides/{{ride_id}}/status",
+							"host": ["{{ride_url}}"],
+							"path": ["api", "v1", "rides", "{{ride_id}}", "status"]
+						}
+					}
+				},
+				{
+					"name": "Update Ride Status -> IN_PROGRESS",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"IN_PROGRESS\"\n}"
+						},
+						"url": {
+							"raw": "{{ride_url}}/api/v1/rides/{{ride_id}}/status",
+							"host": ["{{ride_url}}"],
+							"path": ["api", "v1", "rides", "{{ride_id}}", "status"]
+						}
+					}
+				},
+				{
+					"name": "Update Ride Status -> COMPLETED",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.finalFare) {",
+									"    pm.environment.set('final_fare', jsonData.finalFare);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"COMPLETED\"\n}"
+						},
+						"url": {
+							"raw": "{{ride_url}}/api/v1/rides/{{ride_id}}/status",
+							"host": ["{{ride_url}}"],
+							"path": ["api", "v1", "rides", "{{ride_id}}", "status"]
+						}
+					}
+				}
+				,
+				{
+					"name": "Get Rides for Passenger",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{ride_url}}/api/v1/rides/passenger/{{passenger_id}}",
+							"host": ["{{ride_url}}"],
+							"path": ["api", "v1", "rides", "passenger", "{{passenger_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Rate Rider After Completed Ride",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"rideId\": {{ride_id}},\n  \"rating\": 4.8,\n  \"review\": \"Driver was punctual and helpful.\"\n}"
+						},
+						"url": {
+							"raw": "{{ride_url}}/api/v1/rides/{{ride_id}}/rate-rider",
+							"host": ["{{ride_url}}"],
+							"path": ["api", "v1", "rides", "{{ride_id}}", "rate-rider"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Member 4 - Fare & Payment Service",
+			"item": [
+				{
+					"name": "Calculate Fare Estimate",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"pickupLocation\": \"Colombo Fort\",\n  \"destinationLocation\": \"Bambalapitiya\",\n  \"estimatedDistanceKm\": 6.5\n}"
+						},
+						"url": {
+							"raw": "{{payment_url}}/api/v1/payments/fare-estimate",
+							"host": ["{{payment_url}}"],
+							"path": ["api", "v1", "payments", "fare-estimate"]
+						}
+					}
+				},
+				{
+					"name": "Calculate Fare Estimate with Surge + Coupon",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"pickupLocation\": \"Colombo Fort\",\n  \"destinationLocation\": \"Bambalapitiya\",\n  \"estimatedDistanceKm\": 6.5,\n  \"peakHour\": true,\n  \"couponCode\": \"SAVE20\"\n}"
+						},
+						"url": {
+							"raw": "{{payment_url}}/api/v1/payments/fare-estimate",
+							"host": ["{{payment_url}}"],
+							"path": ["api", "v1", "payments", "fare-estimate"]
+						}
+					}
+				},
+				{
+					"name": "Process Payment for Completed Ride",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"rideId\": {{ride_id}},\n  \"passengerId\": {{passenger_id}},\n  \"driverId\": {{driver_id}},\n  \"amount\": {{final_fare}},\n  \"distanceKm\": 6.5,\n  \"paymentMethod\": \"CREDIT_CARD\",\n  \"peakHour\": true,\n  \"couponCode\": \"SAVE20\",\n  \"simulateFailure\": false\n}"
+						},
+						"url": {
+							"raw": "{{payment_url}}/api/v1/payments/process",
+							"host": ["{{payment_url}}"],
+							"path": ["api", "v1", "payments", "process"]
+						}
+					}
+				},
+				{
+					"name": "Get Payment by Ride ID",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{payment_url}}/api/v1/payments/ride/{{ride_id}}",
+							"host": ["{{payment_url}}"],
+							"path": ["api", "v1", "payments", "ride", "{{ride_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Get Receipt for Completed Ride",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{payment_url}}/api/v1/payments/receipt/ride/{{ride_id}}",
+							"host": ["{{payment_url}}"],
+							"path": ["api", "v1", "payments", "receipt", "ride", "{{ride_id}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Negative Scenarios",
+			"item": [
+				{
+					"name": "Negative 1: Login with Invalid Password (400 Bad Request)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"alice@example.com\",\n  \"password\": \"wrongpassword\"\n}"
+						},
+						"url": {
+							"raw": "{{account_url}}/api/v1/accounts/login",
+							"host": ["{{account_url}}"],
+							"path": ["api", "v1", "accounts", "login"]
+						}
+					}
+				},
+				{
+					"name": "Negative 2: Invalid Ride Status Transition (400 Bad Request)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"IN_PROGRESS\"\n}"
+						},
+						"url": {
+							"raw": "{{ride_url}}/api/v1/rides/{{ride_id}}/status",
+							"host": ["{{ride_url}}"],
+							"path": ["api", "v1", "rides", "{{ride_id}}", "status"]
+						}
+					}
+				},
+				{
+					"name": "Negative 3: Simulated Payment Failure (402 Payment Required)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"rideId\": 999,\n  \"passengerId\": 1,\n  \"driverId\": 2,\n  \"amount\": 500.0,\n  \"distanceKm\": 3.0,\n  \"paymentMethod\": \"CREDIT_CARD\",\n  \"simulateFailure\": true\n}"
+						},
+						"url": {
+							"raw": "{{payment_url}}/api/v1/payments/process",
+							"host": ["{{payment_url}}"],
+							"path": ["api", "v1", "payments", "process"]
+						}
+					}
+				}
+			]
+		}
+	]
+}
